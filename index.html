@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="QuickMark">
+  <meta name="description" content="Print, scan and grade multiple-choice answer sheets with your phone. Private, free, on-device.">
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <title>QuickMark · The Curiosity Lab</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header">
+      <a class="brand" href="./" aria-label="QuickMark home">
+        <span class="brand-icon" aria-hidden="true"><span class="scan-corners">▦</span></span>
+        <span class="brand-word">QuickMark<span class="brand-dot">.</span></span>
+      </a>
+      <a class="lab-link" href="https://solisen14.github.io/the-curiosity-lab/" target="_blank" rel="noopener noreferrer">The Curiosity Lab <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main>
+      <div class="hero">
+        <div>
+          <p class="eyebrow"><span class="pulse-dot"></span> PRIVATE BY DESIGN · WORKS ON YOUR DEVICE</p>
+          <h1>Mark smarter.<br><span class="muted-ink">Get back to teaching.</span></h1>
+          <p class="intro">Create an answer key, print a bubble sheet, and scan student responses with your phone. No logins, no uploads, no guesswork.</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="hero-paper">
+            <div class="corner c1"></div><div class="corner c2"></div><div class="corner c3"></div><div class="corner c4"></div>
+            <div class="paper-heading"></div>
+            <div class="hero-bubble-row"><span>01</span><i></i><i class="filled"></i><i></i><i></i></div>
+            <div class="hero-bubble-row"><span>02</span><i class="filled"></i><i></i><i></i><i></i></div>
+            <div class="hero-bubble-row"><span>03</span><i></i><i></i><i class="filled"></i><i></i></div>
+            <div class="hero-bubble-row"><span>04</span><i></i><i class="filled"></i><i></i><i></i></div>
+          </div>
+          <div class="hero-score"><span class="score-check">✓</span><strong>18<span>/20</span></strong><small>Nice work.</small></div>
+        </div>
+      </div>
+
+      <nav class="steps" role="tablist" aria-label="QuickMark steps">
+        <button class="step active" id="tab-key" role="tab" aria-selected="true" aria-controls="panel-key" data-tab="key"><span class="step-number">01</span><span><strong>Answer key</strong><small>Set up your test</small></span></button>
+        <button class="step" id="tab-print" role="tab" aria-selected="false" aria-controls="panel-print" data-tab="print" tabindex="-1"><span class="step-number">02</span><span><strong>Print sheets</strong><small>Ready for students</small></span></button>
+        <button class="step" id="tab-scan" role="tab" aria-selected="false" aria-controls="panel-scan" data-tab="scan" tabindex="-1"><span class="step-number">03</span><span><strong>Scan & score</strong><small>Instant results</small></span></button>
+      </nav>
+
+      <section id="panel-key" role="tabpanel" aria-labelledby="tab-key" class="panel">
+        <div class="panel-heading">
+          <div><p class="section-kicker">STEP ONE</p><h2>Set your answer key</h2><p>Choose your test settings and tap the correct answer for each question.</p></div>
+          <span class="status-pill" id="keyStatus">0 / 20 entered</span>
+        </div>
+
+        <div class="settings-grid">
+          <label class="field">Test name
+            <input id="testTitle" type="text" maxlength="70" autocomplete="off" placeholder="e.g. Unit 2 check-in">
+          </label>
+          <label class="field">Questions
+            <select id="questionCount">
+              <option value="10">10 questions</option><option value="20" selected>20 questions</option>
+              <option value="30">30 questions</option><option value="40">40 questions</option><option value="50">50 questions</option>
+            </select>
+          </label>
+          <label class="field">Answer choices
+            <select id="choiceCount"><option value="4" selected>A – D</option><option value="5">A – E</option></select>
+          </label>
+        </div>
+
+        <div class="key-tools">
+          <div><h3>Correct answers</h3><p>Tap a letter to select it. Tap again to clear.</p></div>
+          <button id="clearKey" class="text-button" type="button">Clear all</button>
+        </div>
+        <div id="keyGrid" class="key-grid" aria-label="Correct answers"></div>
+
+        <details class="paste-disclosure">
+          <summary>Have an answer list? Paste it instead <span aria-hidden="true">⌄</span></summary>
+          <div class="paste-content">
+            <label for="pasteAnswers">Paste letters in order, with or without spaces or commas.</label>
+            <textarea id="pasteAnswers" rows="3" spellcheck="false" placeholder="A B D C A C D B ..."></textarea>
+            <div class="inline-actions"><button id="applyPaste" class="button secondary" type="button">Apply answers</button><span id="pasteMessage" role="status" class="muted-note"></span></div>
+          </div>
+        </details>
+        <div class="panel-bottom">
+          <p class="save-note"><span aria-hidden="true">◉</span> Answer key saved only in this browser.</p>
+          <button id="toPrint" class="button primary" type="button">Next: print sheets <span aria-hidden="true">→</span></button>
+        </div>
+      </section>
+
+      <section id="panel-print" role="tabpanel" aria-labelledby="tab-print" class="panel" hidden>
+        <div class="panel-heading"><div><p class="section-kicker">STEP TWO</p><h2>Print your answer sheets</h2><p>A standardized layout helps your phone find and read the bubbles accurately.</p></div></div>
+        <div class="print-layout">
+          <div class="sheet-frame"><div id="sheetPreview" class="sheet-preview" aria-label="Printable answer sheet preview"></div></div>
+          <aside class="print-aside">
+            <span class="aside-icon" aria-hidden="true">▤</span>
+            <h3>One sheet. Every student.</h3>
+            <p>Print as many identical sheets as you need. Each has four alignment squares so QuickMark can locate the answer bubbles.</p>
+            <ul class="help-list"><li>Print at <strong>100% / Actual size</strong> on letter paper.</li><li>Use dark ink and plain white paper.</li><li>Ask students to fill one bubble per question completely.</li><li>Keep the four corner squares visible.</li></ul>
+            <button id="printButton" class="button primary full" type="button">Print answer sheet <span aria-hidden="true">↗</span></button>
+            <p class="small-note">On iPhone, use Share or Print to save a PDF or send it to a printer.</p>
+            <button id="toScan" class="button secondary full" type="button">Next: scan a sheet <span aria-hidden="true">→</span></button>
+          </aside>
+        </div>
+      </section>
+
+      <section id="panel-scan" role="tabpanel" aria-labelledby="tab-scan" class="panel" hidden>
+        <div class="panel-heading"><div><p class="section-kicker">STEP THREE</p><h2>Scan & score</h2><p>Photograph a completed answer sheet. We'll read the marks and compare them with your key.</p></div><span id="scanKeyStatus" class="status-pill">Key not complete</span></div>
+        <div class="scan-intro" id="scanIntro">
+          <div class="scan-illustration" aria-hidden="true"><span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span><span class="scan-paper">✓</span></div>
+          <h3>Ready when you are.</h3>
+          <p>Place the entire page on a contrasting surface with good light. Hold your phone over it with the <strong>QuickMark</strong> heading at the top.</p>
+          <div class="scan-buttons">
+            <label class="button primary camera-label" for="cameraInput">Take photo <span aria-hidden="true">↗</span></label>
+            <label class="button secondary camera-label" for="uploadInput">Choose photo</label>
+          </div>
+          <input class="visually-hidden" id="cameraInput" type="file" accept="image/*" capture="environment">
+          <input class="visually-hidden" id="uploadInput" type="file" accept="image/*">
+          <p class="small-note">Photos are processed in memory on this device. They are not uploaded or saved by QuickMark.</p>
+        </div>
+
+        <div id="scanWorkspace" class="scan-workspace" hidden>
+          <div class="workspace-preview">
+            <div class="preview-heading"><strong>Captured sheet</strong><button type="button" id="rotateImage" class="text-button">↻ Rotate photo</button></div>
+            <canvas id="photoPreview" aria-label="Captured sheet with detected alignment markers"></canvas>
+            <p id="scanFeedback" class="scan-feedback" role="status"></p>
+            <button id="anotherPhoto" class="button secondary full" type="button">Take another photo</button>
+          </div>
+          <div id="results" class="results" hidden>
+            <div class="score-card">
+              <div><p class="score-label" id="scoreLabel">Preliminary score</p><strong id="scorePercent">0%</strong><p id="scoreFraction">0 of 20 correct</p></div>
+              <div class="score-ring" aria-hidden="true">✓</div>
+            </div>
+            <div class="mini-stats"><span><strong id="statCorrect">0</strong> correct</span><span><strong id="statBlank">0</strong> blank</span><span><strong id="statReview">0</strong> to review</span></div>
+            <p id="reviewNotice" class="review-notice" role="status"></p>
+            <div class="review-header"><h3>Question review</h3><p>Change any detected answer to correct it.</p></div>
+            <div id="reviewRows" class="review-rows"></div>
+            <div class="result-actions">
+              <button id="confirmScore" class="button primary full" type="button">Confirm grade</button>
+              <button id="copyScore" class="button secondary full" type="button">Copy result summary</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="trust-strip" aria-label="QuickMark commitments">
+        <div><span aria-hidden="true">◈</span><strong>No student accounts</strong><small>Only the test key is saved.</small></div>
+        <div><span aria-hidden="true">▧</span><strong>No photo uploads</strong><small>Grading runs in your browser.</small></div>
+        <div><span aria-hidden="true">↗</span><strong>Made for teachers</strong><small>Free and open source.</small></div>
+      </section>
+    </main>
+
+    <footer class="site-footer"><span>QuickMark · A Curiosity Lab experiment</span><span>Version 0.1 · Verify grades before recording them.</span></footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="printRoot" aria-hidden="true"></div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
