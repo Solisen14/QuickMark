@@ -59,12 +59,11 @@
           <label class="field">Test name
             <input id="testTitle" type="text" maxlength="70" autocomplete="off" placeholder="e.g. Unit 2 check-in">
           </label>
-          <label class="field">Questions
-            <select id="questionCount">
-              <option value="10">10 questions</option><option value="20" selected>20 questions</option>
-              <option value="30">30 questions</option><option value="40">40 questions</option><option value="50">50 questions</option>
-            </select>
-          </label>
+          <div class="field">
+            <label for="questionCount">Questions</label>
+            <input id="questionCount" type="number" min="1" max="50" step="1" inputmode="numeric" value="20" aria-describedby="questionCountHint">
+            <p id="questionCountHint" class="count-hint" role="status" aria-live="polite" hidden></p>
+          </div>
           <label class="field">Answer choices
             <select id="choiceCount"><option value="4" selected>A – D</option><option value="5">A – E</option></select>
           </label>
