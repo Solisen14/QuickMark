@@ -1,0 +1,18 @@
+{
+  "name": "QuickMark · The Curiosity Lab",
+  "short_name": "QuickMark",
+  "description": "Scan and grade multiple-choice answer sheets privately on your phone.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f8f7",
+  "theme_color": "#151c23",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
