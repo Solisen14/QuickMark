@@ -509,5 +509,14 @@ window.addEventListener("hashchange",()=>{
   renderKey();renderSheet();updateCountHint();setTab("key");toast("Answer key imported to this device.");
 });
 if("serviceWorker" in navigator && location.protocol==="https:"){
-  navigator.serviceWorker.register("./sw.js").catch(()=>{/* Offline support is optional. */});
+  // Reload after an updated worker takes control so the UI uses one coherent build.
+  let switchedController=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(switchedController)return;
+    switchedController=true;
+    location.reload();
+  });
+  navigator.serviceWorker.register("./sw.js")
+    .then(registration=>registration.update())
+    .catch(()=>{/* The app still works online if offline support is unavailable. */});
 }
