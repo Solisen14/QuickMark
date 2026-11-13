@@ -5,10 +5,25 @@
 export const SHEET = Object.freeze({
   width: 816, height: 1056,
   markerCenters: [[64, 64], [752, 64], [64, 990], [752, 990]],
-  firstY: 314, rowGap: 23, firstX: 172, columnGap: 340, answerGap: 36
+  firstY: 314, rowGap: 23, firstX: 172, columnGap: 340, answerGap: 36,
+  formatFirstX: 498, formatGap: 16, formatY: 198, formatSize: 12, formatBits: 8
 });
 
 export const ALPHABET = "ABCDE";
+
+export function validQuestionCount(value) {
+  return Number.isInteger(value) && value >= 1 && value <= 50;
+}
+
+// Version marker (bit 7) distinguishes new sheets from earlier five-size layouts.
+// The remaining seven bits uniquely identify all 100 question/choice combinations.
+export function sheetFormatCode(total, choices) {
+  if (!validQuestionCount(total) || ![4, 5].includes(choices)) {
+    throw new RangeError("Sheet format requires 1–50 questions and 4 or 5 choices");
+  }
+  return 128 + total + (choices === 5 ? 50 : 0);
+}
+
 
 export function questionLayout(number, total, choices = 5) {
   if (!Number.isInteger(number) || number < 1 || number > total) {
@@ -62,6 +77,36 @@ export function mapPoint(h, x, y) {
   const d = h[6]*x + h[7]*y + h[8];
   if (!Number.isFinite(d) || Math.abs(d) < 1e-9) return [NaN, NaN];
   return [(h[0]*x+h[1]*y+h[2])/d, (h[3]*x+h[4]*y+h[5])/d];
+}
+
+/**
+ * Read the printed eight-bit sheet identifier from a perspective-corrected photo.
+ * Returns null if the markers are too unclear to verify confidently.
+ */
+export function readSheetFormatCode(gray, width, height, h) {
+  let code = 0;
+  for (let i = 0; i < SHEET.formatBits; i++) {
+    const cx = SHEET.formatFirstX + SHEET.formatGap * i;
+    const values = [];
+    for (let dy = -3; dy <= 3; dy += 3) {
+      for (let dx = -3; dx <= 3; dx += 3) {
+        const [u, v] = mapPoint(h, cx + dx, SHEET.formatY + dy);
+        const x = Math.round(u), y = Math.round(v);
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+          values.push(gray[y * width + x]);
+        }
+      }
+    }
+    const [bx, by] = mapPoint(h, cx, SHEET.formatY + 21);
+    const x = Math.round(bx), y = Math.round(by);
+    if (values.length < 6 || x < 0 || x >= width || y < 0 || y >= height) return null;
+    const level = values.reduce((a, b) => a + b, 0) / values.length;
+    const background = gray[y * width + x];
+    const contrast = background - level;
+    if (contrast > 50) code |= 1 << i;
+    else if (contrast > 20) return null; // Do not guess ambiguous format markers.
+  }
+  return code;
 }
 
 export function grayscale(imageData) {
