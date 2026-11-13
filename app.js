@@ -157,14 +157,14 @@ function changeTotal() {
   const old=state.key;
   state.total=total;
   state.key=Array.from({length:total},(_,i)=>old[i]||null);
-  state.detections=null;state.overrides={};state.confirmed=false;
+  resetScan();
   renderKey();save();
 }
 
 function changeChoices() {
   state.choices=Number($("choiceCount").value);
   state.key=state.key.map(a=>ALPHABET.slice(0,state.choices).includes(a)?a:null);
-  state.detections=null;state.overrides={};state.confirmed=false;
+  resetScan();
   renderKey();save();
 }
 
@@ -175,7 +175,7 @@ function applyPaste() {
     $("pasteMessage").textContent="Enter exactly "+state.total+" valid letters (A–"+ALPHABET[state.choices-1]+").";
     return;
   }
-  state.key=Array.from(raw);renderKey();save();
+  resetScan();state.key=Array.from(raw);renderKey();save();
   $("pasteMessage").textContent="Answer key applied.";
   $("pasteAnswers").value="";
   toast("All "+state.total+" answers added.");
@@ -388,14 +388,14 @@ function bindEvents() {
     if(!button)return;
     const i=Number(button.dataset.question),letter=button.dataset.letter;
     state.key[i]=state.key[i]===letter?null:letter;
-    state.detections=null;state.overrides={};state.confirmed=false;
+    resetScan();
     syncKeyButtons(i);save();
   });
   $("clearKey").addEventListener("click",()=>{
     if(state.key.every(v=>v===null))return;
     if(!window.confirm("Clear all "+state.total+" correct answers?"))return;
     state.key=Array(state.total).fill(null);
-    state.detections=null;state.overrides={};state.confirmed=false;
+    resetScan();
     renderKey();save();
   });
   $("applyPaste").addEventListener("click",applyPaste);
