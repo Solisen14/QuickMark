@@ -1,4 +1,4 @@
-import {SHEET, ALPHABET, questionLayout, homography, grayscale, findMarkers, readAnswers, gradeAnswers, validQuestionCount, sheetFormatCode, readSheetFormatCode, questionCountGuidance} from "./omr.js";
+import {SHEET, ALPHABET, questionLayout, homography, grayscale, findMarkers, readAnswers, gradeAnswers, validQuestionCount, sheetFormatCode, readSheetFormatCode, questionCountGuidance} from "./omr.js?v=0.3";
 
 const $ = id => document.getElementById(id);
 const STORAGE_KEY = "quickmark-answer-key-v1";
@@ -55,6 +55,8 @@ function importKeyFromFragment() {
        !data.key.every(letter=>ALPHABET.slice(0,data.choices).includes(letter)))throw Error("Invalid key");
     state.title=String(data.title||"").slice(0,70);
     state.total=data.total;state.choices=data.choices;state.key=data.key.slice();
+    clearTimeout(countUpdateTimer);
+    countUpdateTimer=null;
     save();
     history.replaceState(null,"",location.pathname+location.search);
     return true;
@@ -192,6 +194,8 @@ function renderSheet() {
   $("printRoot").replaceChildren(sheet.cloneNode(true));
 }
 
+let countUpdateTimer=null;
+
 function updateCountHint() {
   const hint=$("questionCountHint");
   const raw=$("questionCount").value.trim();
@@ -201,7 +205,25 @@ function updateCountHint() {
   if (guidance) hint.textContent=guidance.text;
 }
 
+// Commit after a short pause so typing "30" doesn't temporarily truncate the
+// answer key to three questions. Blur/Enter still commits immediately.
+function scheduleCountUpdate() {
+  updateCountHint();
+  clearTimeout(countUpdateTimer);
+  countUpdateTimer=null;
+  const raw=$("questionCount").value.trim();
+  const count=Number(raw);
+  if (raw && validQuestionCount(count) && count!==state.total) {
+    countUpdateTimer=setTimeout(()=>{
+      countUpdateTimer=null;
+      changeTotal();
+    },200);
+  }
+}
+
 function changeTotal() {
+  clearTimeout(countUpdateTimer);
+  countUpdateTimer=null;
   const field=$("questionCount");
   const raw=field.value.trim();
   const total=Number(raw);
@@ -216,7 +238,9 @@ function changeTotal() {
     state.total=total;
     state.key=Array.from({length:total},(_,i)=>old[i]||null);
     resetScan();
-    renderKey();save();
+    renderKey();
+    renderSheet();
+    save();
   }
   updateCountHint();
 }
@@ -421,8 +445,11 @@ function bindEvents() {
   $("testTitle").addEventListener("input",event=>{
     state.title=event.target.value.slice(0,70);save();
   });
-  $("questionCount").addEventListener("input",updateCountHint);
+  $("questionCount").addEventListener("input",scheduleCountUpdate);
   $("questionCount").addEventListener("change",changeTotal);
+  $("questionCount").addEventListener("keydown",event=>{
+    if (event.key==="Enter") {event.preventDefault();changeTotal();}
+  });
   $("choiceCount").addEventListener("change",changeChoices);
   $("keyGrid").addEventListener("click",event=>{
     const button=event.target.closest("button[data-question]");
