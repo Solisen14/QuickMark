@@ -1,8 +1,7 @@
-import {SHEET, ALPHABET, questionLayout, homography, mapPoint, grayscale, findMarkers, readAnswers, gradeAnswers} from "./omr.js";
+import {SHEET, ALPHABET, questionLayout, homography, grayscale, findMarkers, readAnswers, gradeAnswers, validQuestionCount, sheetFormatCode, readSheetFormatCode} from "./omr.js";
 
 const $ = id => document.getElementById(id);
 const STORAGE_KEY = "quickmark-answer-key-v1";
-const VALID_COUNTS = [10,20,30,40,50];
 const state = {
   title:"", total:20, choices:4, key:Array(20).fill(null),
   image:null, turns:0, detections:null, overrides:{}, confirmed:false
@@ -19,7 +18,7 @@ function toast(message) {
 function loadSaved() {
   try {
     const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-    if (!data || !VALID_COUNTS.includes(data.total) || ![4,5].includes(data.choices) ||
+    if (!data || !validQuestionCount(data.total) || ![4,5].includes(data.choices) ||
         !Array.isArray(data.key)) return;
     state.title = String(data.title || "").slice(0,70);
     state.total = data.total; state.choices = data.choices;
@@ -51,7 +50,7 @@ function importKeyFromFragment() {
     const code=location.hash.slice(5).replace(/-/g,"+").replace(/_/g,"/");
     const bytes=Uint8Array.from(atob(code),char=>char.charCodeAt(0));
     const data=JSON.parse(new TextDecoder().decode(bytes));
-    if(data.version!==1||!VALID_COUNTS.includes(data.total)||![4,5].includes(data.choices)||
+    if(data.version!==1||!validQuestionCount(data.total)||![4,5].includes(data.choices)||
        !Array.isArray(data.key)||data.key.length!==data.total||
        !data.key.every(letter=>ALPHABET.slice(0,data.choices).includes(letter)))throw Error("Invalid key");
     state.title=String(data.title||"").slice(0,70);
@@ -159,12 +158,13 @@ function buildSheet() {
   svgElement(svg,"text",{x:104,y:231,"font-size":14,fill:"#222","font-family":"Arial, sans-serif"},"Name (optional): _______________________________________");
   svgElement(svg,"text",{x:104,y:251,"font-size":12,fill:"#515b58","font-family":"Arial, sans-serif"},"Fill ONE bubble completely per question. Keep all four corner squares visible.");
   // Machine-readable format identifier guards against scanning a sheet with a different layout.
-  svgElement(svg,"text",{x:638,y:171,"font-size":10,"font-weight":700,fill:"#3d4944","font-family":"Arial, sans-serif"},"SHEET FORMAT");
-  const code=state.total/10 + (state.choices===5?8:0);
-  for (let i=0;i<4;i++) {
-    const x=640+25*i;
-    svgElement(svg,"rect",{x:x-8,y:190,width:16,height:16,
-      stroke:"#1b2523","stroke-width":1.8,fill:code&(1<<i)?"#101517":"#fff"});
+  svgElement(svg,"text",{x:SHEET.formatFirstX-4,y:171,"font-size":10,"font-weight":700,fill:"#3d4944","font-family":"Arial, sans-serif"},"SHEET FORMAT");
+  const code=sheetFormatCode(state.total,state.choices);
+  for (let i=0;i<SHEET.formatBits;i++) {
+    const x=SHEET.formatFirstX+SHEET.formatGap*i;
+    svgElement(svg,"rect",{x:x-SHEET.formatSize/2,y:SHEET.formatY-SHEET.formatSize/2,
+      width:SHEET.formatSize,height:SHEET.formatSize,
+      stroke:"#1b2523","stroke-width":1.6,fill:code&(1<<i)?"#101517":"#fff"});
   }
   svgElement(svg,"line",{x1:100,y1:275,x2:716,y2:275,stroke:"#b4c2bb","stroke-width":1.2});
   for (let col=0;col<2;col++) {
@@ -192,14 +192,47 @@ function renderSheet() {
   $("printRoot").replaceChildren(sheet.cloneNode(true));
 }
 
+function updateCountHint() {
+  const field=$("questionCount");
+  const hint=$("questionCountHint");
+  const raw=field.value.trim();
+  const count=Number(raw);
+  hint.classList.remove("invalid");
+  if (!raw) {
+    hint.hidden=true;
+  } else if (!validQuestionCount(count)) {
+    hint.textContent="Choose a whole number from 1 to 50.";
+    hint.classList.add("invalid");
+    hint.hidden=false;
+  } else if (count<5) {
+    hint.textContent="This might be quicker to evaluate by hand";
+    hint.hidden=false;
+  } else if (count>25) {
+    hint.textContent="That's a lot of multiple choice! Consider other ways to assess student learning";
+    hint.hidden=false;
+  } else {
+    hint.hidden=true;
+  }
+}
+
 function changeTotal() {
-  const total=Number($("questionCount").value);
-  if (!VALID_COUNTS.includes(total)) return;
-  const old=state.key;
-  state.total=total;
-  state.key=Array.from({length:total},(_,i)=>old[i]||null);
-  resetScan();
-  renderKey();save();
+  const field=$("questionCount");
+  const raw=field.value.trim();
+  const total=Number(raw);
+  if (!raw || !validQuestionCount(total)) {
+    toast("Enter a whole number from 1 to 50.");
+    field.value=String(state.total);
+    updateCountHint();
+    return;
+  }
+  if (total!==state.total) {
+    const old=state.key;
+    state.total=total;
+    state.key=Array.from({length:total},(_,i)=>old[i]||null);
+    resetScan();
+    renderKey();save();
+  }
+  updateCountHint();
 }
 
 function changeChoices() {
@@ -220,26 +253,6 @@ function applyPaste() {
   $("pasteMessage").textContent="Answer key applied.";
   $("pasteAnswers").value="";
   toast("All "+state.total+" answers added.");
-}
-
-function formatCodeFromImage(gray,width,height,h) {
-  let code=0;
-  for (let i=0;i<4;i++) {
-    const cx=640+25*i;
-    const levels=[];
-    for (let dy=-3;dy<=3;dy+=3) for(let dx=-3;dx<=3;dx+=3) {
-      const [u,v]=mapPoint(h,cx+dx,198+dy);
-      const x=Math.round(u),y=Math.round(v);
-      if (x>=0&&x<width&&y>=0&&y<height) levels.push(gray[y*width+x]);
-    }
-    const [bx,by]=mapPoint(h,cx,219);
-    const x=Math.round(bx),y=Math.round(by);
-    if (levels.length<6||x<0||x>=width||y<0||y>=height) return null;
-    const level=levels.reduce((a,b)=>a+b,0)/levels.length;
-    const background=gray[y*width+x];
-    if (background-level>50) code|=(1<<i);
-  }
-  return code;
 }
 
 async function loadPhoto(file) {
@@ -315,8 +328,8 @@ function scanPhoto() {
       return;
     }
     const h=homography(SHEET.markerCenters,markers);
-    const actualCode=formatCodeFromImage(gray,canvas.width,canvas.height,h);
-    const expectedCode=state.total/10+(state.choices===5?8:0);
+    const actualCode=readSheetFormatCode(gray,canvas.width,canvas.height,h);
+    const expectedCode=sheetFormatCode(state.total,state.choices);
     if(actualCode!==expectedCode){
       state.detections=null;$("results").hidden=true;
       $("scanFeedback").className="scan-feedback error";
@@ -422,6 +435,7 @@ function bindEvents() {
   $("testTitle").addEventListener("input",event=>{
     state.title=event.target.value.slice(0,70);save();
   });
+  $("questionCount").addEventListener("input",updateCountHint);
   $("questionCount").addEventListener("change",changeTotal);
   $("choiceCount").addEventListener("change",changeChoices);
   $("keyGrid").addEventListener("click",event=>{
@@ -471,7 +485,7 @@ const keyImportedOnLoad=importKeyFromFragment();
 $("testTitle").value=state.title;
 $("questionCount").value=String(state.total);
 $("choiceCount").value=String(state.choices);
-renderKey();renderSheet();bindEvents();
+renderKey();renderSheet();updateCountHint();bindEvents();
 if(keyImportedOnLoad)toast("Answer key imported to this device.");
 window.addEventListener("hashchange",()=>{
   if(!importKeyFromFragment())return;
@@ -479,7 +493,7 @@ window.addEventListener("hashchange",()=>{
   $("testTitle").value=state.title;
   $("questionCount").value=String(state.total);
   $("choiceCount").value=String(state.choices);
-  renderKey();renderSheet();setTab("key");toast("Answer key imported to this device.");
+  renderKey();renderSheet();updateCountHint();setTab("key");toast("Answer key imported to this device.");
 });
 if("serviceWorker" in navigator && location.protocol==="https:"){
   navigator.serviceWorker.register("./sw.js").catch(()=>{/* Offline support is optional. */});
