@@ -1,4 +1,4 @@
-import {SHEET, ALPHABET, questionLayout, homography, grayscale, findMarkers, readAnswers, gradeAnswers, validQuestionCount, sheetFormatCode, readSheetFormatCode} from "./omr.js";
+import {SHEET, ALPHABET, questionLayout, homography, grayscale, findMarkers, readAnswers, gradeAnswers, validQuestionCount, sheetFormatCode, readSheetFormatCode, questionCountGuidance} from "./omr.js";
 
 const $ = id => document.getElementById(id);
 const STORAGE_KEY = "quickmark-answer-key-v1";
@@ -193,26 +193,12 @@ function renderSheet() {
 }
 
 function updateCountHint() {
-  const field=$("questionCount");
   const hint=$("questionCountHint");
-  const raw=field.value.trim();
-  const count=Number(raw);
-  hint.classList.remove("invalid");
-  if (!raw) {
-    hint.hidden=true;
-  } else if (!validQuestionCount(count)) {
-    hint.textContent="Choose a whole number from 1 to 50.";
-    hint.classList.add("invalid");
-    hint.hidden=false;
-  } else if (count<5) {
-    hint.textContent="This might be quicker to evaluate by hand";
-    hint.hidden=false;
-  } else if (count>25) {
-    hint.textContent="That's a lot of multiple choice! Consider other ways to assess student learning";
-    hint.hidden=false;
-  } else {
-    hint.hidden=true;
-  }
+  const raw=$("questionCount").value.trim();
+  const guidance=raw ? questionCountGuidance(Number(raw)) : null;
+  hint.hidden=!guidance;
+  hint.classList.toggle("invalid",Boolean(guidance?.invalid));
+  if (guidance) hint.textContent=guidance.text;
 }
 
 function changeTotal() {
