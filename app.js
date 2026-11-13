@@ -36,6 +36,46 @@ function save() {
   } catch (_) { /* No data is sent elsewhere if storage is unavailable. */ }
 }
 
+function sharedKeyLink() {
+  const data={version:1,title:state.title,total:state.total,choices:state.choices,key:state.key};
+  const bytes=new TextEncoder().encode(JSON.stringify(data));
+  let binary="";
+  for(const byte of bytes)binary+=String.fromCharCode(byte);
+  const encoded=btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+  return location.href.split("#")[0]+"#key="+encoded;
+}
+
+function importKeyFromFragment() {
+  if(!location.hash.startsWith("#key="))return false;
+  try{
+    const code=location.hash.slice(5).replace(/-/g,"+").replace(/_/g,"/");
+    const bytes=Uint8Array.from(atob(code),char=>char.charCodeAt(0));
+    const data=JSON.parse(new TextDecoder().decode(bytes));
+    if(data.version!==1||!VALID_COUNTS.includes(data.total)||![4,5].includes(data.choices)||
+       !Array.isArray(data.key)||data.key.length!==data.total||
+       !data.key.every(letter=>ALPHABET.slice(0,data.choices).includes(letter)))throw Error("Invalid key");
+    state.title=String(data.title||"").slice(0,70);
+    state.total=data.total;state.choices=data.choices;state.key=data.key.slice();
+    save();
+    history.replaceState(null,"",location.pathname+location.search);
+    return true;
+  }catch(_){
+    toast("This answer-key link is invalid or incomplete.");
+    return false;
+  }
+}
+
+function copyKeyLink() {
+  if(!keyComplete()){toast("Complete your answer key before sharing.");return;}
+  const link=sharedKeyLink();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(
+      ()=>toast("Key link copied. Open it on your iPhone."),
+      ()=>window.prompt("Copy this link to your iPhone:",link)
+    );
+  }else window.prompt("Copy this link to your iPhone:",link);
+}
+
 function keyComplete() { return state.key.length===state.total && state.key.every(Boolean); }
 
 function updateKeyStatus() {
@@ -44,6 +84,7 @@ function updateKeyStatus() {
   $("keyStatus").classList.toggle("ready",keyComplete());
   $("scanKeyStatus").textContent = keyComplete() ? "Key ready · "+state.total+" questions" : "Key incomplete";
   $("scanKeyStatus").classList.toggle("ready",keyComplete());
+  $("shareKey").disabled=!keyComplete();
 }
 
 function renderKey() {
@@ -399,6 +440,7 @@ function bindEvents() {
     renderKey();save();
   });
   $("applyPaste").addEventListener("click",applyPaste);
+  $("shareKey").addEventListener("click",copyKeyLink);
   $("toPrint").addEventListener("click",()=>setTab("print"));
   $("toScan").addEventListener("click",()=>setTab("scan"));
   $("printButton").addEventListener("click",()=>{renderSheet();window.print();});
@@ -425,10 +467,20 @@ function bindEvents() {
 }
 
 loadSaved();
+const keyImportedOnLoad=importKeyFromFragment();
 $("testTitle").value=state.title;
 $("questionCount").value=String(state.total);
 $("choiceCount").value=String(state.choices);
 renderKey();renderSheet();bindEvents();
+if(keyImportedOnLoad)toast("Answer key imported to this device.");
+window.addEventListener("hashchange",()=>{
+  if(!importKeyFromFragment())return;
+  resetScan();
+  $("testTitle").value=state.title;
+  $("questionCount").value=String(state.total);
+  $("choiceCount").value=String(state.choices);
+  renderKey();renderSheet();setTab("key");toast("Answer key imported to this device.");
+});
 if("serviceWorker" in navigator && location.protocol==="https:"){
   navigator.serviceWorker.register("./sw.js").catch(()=>{/* Offline support is optional. */});
 }
