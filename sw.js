@@ -1,4 +1,4 @@
-const CACHE = "quickmark-v0.1";
+const CACHE = "quickmark-v0.2";
 const ASSETS = ["./","./index.html","./styles.css","./app.js","./omr.js","./icon.svg","./apple-touch-icon.png","./manifest.webmanifest"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
