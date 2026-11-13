@@ -11,6 +11,10 @@
 3. **Scan:** Open QuickMark in Safari on an iPhone, tap **Take photo**, and photograph the completed answer sheet upright, in even lighting, with all corners visible. You can also choose an existing image.
 4. **Review:** QuickMark detects alignment markers, verifies the layout code, reads bubbles and shows a provisional score. Blank and multiple/uncertain markings are distinguishable. Edit any detected answer using the per-question dropdown, then confirm.
 
+## Using a laptop and iPhone together
+
+Make the key on your computer, then click **Copy key link**. Open that link on your iPhone to import the same test settings and solutions. The URL fragment contains the answer key and is not sent to the QuickMark website in normal web requests, so no account or shared database is required. **Keep the link private from students**, because someone with the link can read the answer key.
+
 ## Getting it online with GitHub Pages
 
 This is a static site with no build step or third-party dependencies.
@@ -26,7 +30,7 @@ You can add the site to your iPhone Home Screen from Safari's Share menu. It can
 
 - Photo processing and bubble detection happen **entirely in the browser** using the Canvas API.
 - The app makes **no photo uploads** and has **no accounts, advertising, or external analytics**.
-- Only the **answer key, question format, and optional test title** are stored in your browser's localStorage.
+- Only the **answer key, question format, and optional test title** are stored in your browser's localStorage. A manually copied transfer link also contains these details in its fragment.
 - Captured image pixels and results live in memory for the current session and are not saved by QuickMark or sent to a server.
 - Your browser, iPhone camera app, operating system, or a user's manual screenshots may maintain their own copies; QuickMark does not control those.
 - Avoid collecting student identifiers in this prototype. Follow your school board's privacy and assessment requirements before classroom use.
