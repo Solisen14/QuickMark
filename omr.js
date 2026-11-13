@@ -15,6 +15,14 @@ export function validQuestionCount(value) {
   return Number.isInteger(value) && value >= 1 && value <= 50;
 }
 
+/** A suggestion, never a restriction on the teacher's question count. */
+export function questionCountGuidance(total) {
+  if (!validQuestionCount(total)) return {text:"Choose a whole number from 1 to 50.", invalid:true};
+  if (total < 5) return {text:"This might be quicker to evaluate by hand", invalid:false};
+  if (total > 25) return {text:"That's a lot of multiple choice! Consider other ways to assess student learning", invalid:false};
+  return null;
+}
+
 // Version marker (bit 7) distinguishes new sheets from earlier five-size layouts.
 // The remaining seven bits uniquely identify all 100 question/choice combinations.
 export function sheetFormatCode(total, choices) {
