@@ -299,7 +299,7 @@ export function initLiveCameraScanner({isKeyReady, getSettings, onStable, onNext
     behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"
   }));
   document.addEventListener("visibilitychange",()=>{
-    if(document.hidden && active())stop();
+    if(document.hidden && (active() || !liveArea.hidden))stop();
   });
   window.addEventListener("pagehide",()=>{if(active())stop();});
 
