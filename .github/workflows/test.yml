@@ -22,5 +22,8 @@ jobs:
           node --check app.js
           node --check omr.js
           node --check sw.js
-      - name: Synthetic-sheet and scoring tests
+          node --check live-camera.js
+          node --check live-scan.js
+          node --check assessment.js
+      - name: Synthetic-sheet, live stability, and scoring tests
         run: npm test
