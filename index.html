@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css?v=0.4">
+  <link rel="stylesheet" href="./styles.css?v=0.5">
   <title>QuickMark · The Curiosity Lab</title>
 </head>
 <body>
@@ -155,10 +155,56 @@
       </section>
     </main>
 
-    <footer class="site-footer"><span>QuickMark · A Curiosity Lab experiment</span><span>Version 0.4 · Verify grades before recording them.</span></footer>
+    <footer class="site-footer">
+      <span>QuickMark · A Curiosity Lab experiment</span>
+      <button id="aboutAssessment" class="footer-link" type="button">About Assessment</button>
+      <span>Version 0.5 · Verify grades before recording them.</span>
+    </footer>
   </div>
+  <dialog id="assessmentDialog" class="assessment-dialog" aria-labelledby="assessmentTitle" aria-describedby="assessmentDescription">
+    <div class="assessment-body">
+      <div class="assessment-header">
+        <div class="assessment-brand">
+          <span class="brand-icon" aria-hidden="true"><span class="scan-corners">▦</span></span>
+          <span class="brand-word">QuickMark<span class="brand-dot">.</span></span>
+        </div>
+        <span class="assessment-lab">THE CURIOSITY LAB</span>
+      </div>
+
+      <div class="assessment-content">
+        <p class="assessment-eyebrow"><span aria-hidden="true">▤</span> BEFORE YOU BEGIN</p>
+        <h2 id="assessmentTitle">A note on balanced assessment</h2>
+        <div id="assessmentDescription">
+          <p>Multiple-choice questions can be a valuable way to assess student learning. They offer efficiency, consistency, and useful insights into what students know and understand.</p>
+          <p><strong>But no single assessment format tells the whole story.</strong></p>
+          <p>Students demonstrate learning in different ways. Depending on the learning goals, consider balancing multiple-choice questions with other opportunities for students to demonstrate their knowledge, skills, thinking, and understanding.</p>
+        </div>
+
+        <div class="assessment-examples">
+          <h3>Other ways to gather evidence of learning</h3>
+          <ul>
+            <li><span aria-hidden="true">◉</span> Conversations &amp; discussions</li>
+            <li><span aria-hidden="true">✎</span> Written &amp; creative responses</li>
+            <li><span aria-hidden="true">▣</span> Presentations &amp; demonstrations</li>
+            <li><span aria-hidden="true">◎</span> Observations &amp; practical tasks</li>
+          </ul>
+        </div>
+
+        <p class="assessment-principle">QuickMark is designed to make multiple-choice marking easier, not to replace the professional judgment involved in assessing student learning.</p>
+      </div>
+
+      <div class="assessment-actions">
+        <label id="assessmentAcknowledgementRow" class="assessment-acknowledgement">
+          <input id="assessmentCheckbox" type="checkbox">
+          <span>I acknowledge the importance of using a balanced approach to assessment.</span>
+        </label>
+        <button id="assessmentContinue" class="button primary full" type="button" disabled>Continue to QuickMark <span aria-hidden="true">→</span></button>
+        <p id="assessmentRememberNote" class="assessment-remember">Your acknowledgement will be remembered on this device.</p>
+      </div>
+    </div>
+  </dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <div id="printRoot" aria-hidden="true"></div>
-  <script type="module" src="./app.js?v=0.3"></script>
+  <script type="module" src="./app.js?v=0.5"></script>
 </body>
 </html>
