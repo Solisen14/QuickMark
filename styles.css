@@ -112,6 +112,24 @@ a{color:inherit;text-decoration:none}
 .help-list li{padding-bottom:7px}
 .print-aside .button{margin-top:9px}
 .print-aside .small-note{font-size:13px}
+/* Live camera is a responsive, native video feed with a registered overlay canvas. */
+.live-workspace{border:1px solid #d5e2d2;border-radius:20px;padding:16px;background:#f3f8ef;margin:0 0 22px}
+.live-camera-stage{position:relative;overflow:hidden;background:#0b1912;border-radius:15px;max-width:670px;margin:0 auto;min-height:210px}
+.live-camera-stage video{display:block;width:100%;height:auto;min-height:210px;background:#0b1912}
+.live-camera-stage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.live-score-badge{position:absolute;z-index:2;top:15px;right:15px;max-width:calc(100% - 30px);display:flex;flex-direction:column;align-items:flex-end;gap:3px;border:1px solid rgba(223,242,138,.6);background:rgba(20,35,27,.94);color:#dff28a;border-radius:13px;padding:12px 17px;box-shadow:0 12px 30px rgba(0,0,0,.28)}
+.live-score-badge span{font-size:11px;font-weight:810;letter-spacing:.08em}
+.live-score-badge strong{font-size:clamp(22px,4vw,34px);line-height:1.1;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.live-camera-caption{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap;max-width:95%;color:#fff;background:rgba(14,27,18,.75);border-radius:30px;font-size:12px;font-weight:700;padding:7px 12px;pointer-events:none}
+.live-status{font-size:14px;font-weight:700;line-height:1.5;margin:13px auto;color:#425c37;text-align:center;max-width:670px}
+.live-status[data-kind="warning"]{color:#865b22}
+.live-status[data-kind="ready"]{color:#345f24}
+.live-controls{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:10px 0 3px}
+.live-controls .button{min-width:125px}
+.live-workspace .small-note{margin:14px auto 0;text-align:center;max-width:640px}
+.camera-unavailable{color:#955227;font-weight:730;font-size:13px;max-width:460px;margin:4px auto 13px}
+.scan-workspace.live-results{grid-template-columns:minmax(0,1fr);max-width:760px;margin:0 auto}
+.scan-workspace.live-results .results{min-width:0}
 .scan-intro{border:1px dashed #cbd9cd;border-radius:21px;text-align:center;padding:35px 20px;background:#f9fbf8}
 .scan-illustration{position:relative;height:156px;width:160px;margin:0 auto 12px;display:grid;place-items:center}
 .bracket{position:absolute;width:23px;height:23px;border-color:#6a873f;border-style:solid}
@@ -239,6 +257,16 @@ a{color:inherit;text-decoration:none}
  .print-layout,.scan-workspace{grid-template-columns:1fr}
  .sheet-frame{padding:10px}.print-aside{padding:0}
  .scan-intro{padding:22px 12px}
+ .live-workspace{padding:10px;border-radius:14px}
+ .live-camera-stage{border-radius:10px;min-height:160px}
+ .live-camera-stage video{min-height:160px}
+ .live-score-badge{top:10px;right:10px;padding:8px 11px;border-radius:10px}
+ .live-score-badge span{font-size:9px}
+ .live-score-badge strong{font-size:23px}
+ .live-camera-caption{font-size:11px;white-space:normal}
+ .live-controls{flex-direction:column}
+ .live-controls .button{width:100%}
+ 
  .review-rows{grid-template-columns:1fr}
  .trust-strip{grid-template-columns:1fr;gap:8px;margin:13px 0 25px}
  .trust-strip>div{padding:12px}
