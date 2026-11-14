@@ -2,7 +2,7 @@
 
 **Scan. Score. Done.** A mobile-first, privacy-conscious multiple-choice grader, built as part of [The Curiosity Lab](https://solisen14.github.io/the-curiosity-lab/).
 
-**Status:** v0.5 experimental prototype. Its scoring logic passes synthetic-image tests, but real printed sheets and iPhone camera conditions have **not yet been validated**. Always inspect and confirm grades before recording them.
+**Status:** v0.6 experimental prototype. Its scoring logic passes synthetic-image tests, but real printed sheets and iPhone camera conditions have **not yet been validated**. Always inspect and confirm grades before recording them.
 
 ## Balanced assessment acknowledgement
 
@@ -24,6 +24,17 @@ First-time visitors see a welcome message emphasizing that multiple-choice quest
 ## Using a laptop and iPhone together
 
 Make the key on your computer, then click **Copy key link**. Open that link on your iPhone to import the same test settings and solutions. The URL fragment contains the answer key and is not sent to the QuickMark website in normal web requests, so no account or shared database is required. **Keep the link private from students**, because someone with the link can read the answer key.
+
+## Live camera scanning (experimental)
+
+- In **Scan & score**, tap **Start live scan** to request permission for the rear camera. This requires HTTPS (GitHub Pages provides it).
+- Hold the entire completed QuickMark sheet in view, including all four alignment squares. The app analyzes video frames locally, checks the sheet format, and requires **three consecutive matching readings** before showing a score.
+- A green grade overlay appears over the sheet in the camera preview. A detailed question-by-question review appears below. The score remains **unconfirmed** until the teacher checks and confirms it.
+- Tap **Review answers** to inspect uncertain bubbles and override incorrect detections. Tap **Scan next sheet** after removing the previous sheet from view; this prevents rescanning the same page by accident.
+- Tap **Stop camera**, change tabs, or switch away from the page to release camera access. Photos remain a fallback for unsupported devices and difficult sheets.
+- No photos, video frames, or grades are sent to a server or automatically stored. Frames are processed in memory only.
+
+**Important:** The live scanner has not been physically tested on an iPhone or real printed pages. Three agreeing frames do not prove a reading is correct. Always review grades against the actual paper before entering student results. Lighting, movement, print scale and devices may affect recognition. Performance may vary between browsers.
 
 ## Getting it online with GitHub Pages
 
@@ -51,6 +62,8 @@ You can add the site to your iPhone Home Screen from Safari's Share menu. It can
 - app.js: answer-key editor, SVG sheet builder, camera/photo handling, review workflow
 - omr.js: marker detection, projective geometry, bubble contrast measurement, format identifiers, counting guidance, scoring
 - assessment.js: accessible welcome dialog and device-local acknowledgement persistence
+- live-camera.js: rear-camera video, page tracking, over-page grade and camera lifecycle
+- live-scan.js: consensus checks for consecutive camera readings
 - sw.js: offline cache for application assets only
 - tests/omr.test.mjs: synthetic image and scoring regression tests
 - .github/workflows/test.yml: automated Node tests and JavaScript syntax checks
