@@ -109,6 +109,7 @@ export function initLiveCameraScanner({isKeyReady, getSettings, onStable, onNext
   }
 
   function stop() {
+    const wasLive = !liveArea.hidden || Boolean(stream);
     generation++;
     if (timer !== null) clearTimeout(timer);
     timer=null;
@@ -132,6 +133,7 @@ export function initLiveCameraScanner({isKeyReady, getSettings, onStable, onNext
     overlay.width=1;overlay.height=1;
     startButton.disabled=false;
     startButton.textContent="◉ Start live scan";
+    if (wasLive) onNext();
   }
 
   function queueNext(token) {
@@ -239,6 +241,7 @@ export function initLiveCameraScanner({isKeyReady, getSettings, onStable, onNext
     }
 
     stop();
+    onNext();
     cameraError.hidden=true;
     scanIntro.hidden=true;
     liveArea.hidden=false;
