@@ -1,8 +1,10 @@
 import {SHEET, ALPHABET, questionLayout, homography, grayscale, findMarkers, readAnswers, gradeAnswers, validQuestionCount, sheetFormatCode, readSheetFormatCode, questionCountGuidance} from "./omr.js?v=0.3";
 import {initAssessmentAcknowledgement} from "./assessment.js?v=0.5";
+import {initLiveCameraScanner} from "./live-camera.js?v=0.6";
 
 const $ = id => document.getElementById(id);
 const STORAGE_KEY = "quickmark-answer-key-v1";
+let liveCamera=null;
 const state = {
   title:"", total:20, choices:4, key:Array(20).fill(null),
   image:null, turns:0, detections:null, overrides:{}, confirmed:false
@@ -133,6 +135,7 @@ function setTab(name) {
     button.tabIndex=active?0:-1;
   });
   for (const tab of ["key","print","scan"]) $("panel-"+tab).hidden = tab!==name;
+  if (name!=="scan") resetScan();
   if (name==="print") renderSheet();
   if (name==="scan") updateKeyStatus();
   document.querySelector(".steps").scrollIntoView({block:"start",behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
@@ -270,6 +273,10 @@ async function loadPhoto(file) {
   if (!keyComplete()) {toast("Finish the answer key before scanning.");return;}
   if (!file||!file.type.startsWith("image/")) {toast("Choose a photo of your answer sheet.");return;}
   if (file.size>28*1024*1024) {toast("Photo too large. Choose an image under 28 MB.");return;}
+  // Photo scanning remains available if live camera access is unsupported.
+  if (liveCamera) liveCamera.stop();
+  $("photoWorkspacePreview").hidden=false;
+  $("scanWorkspace").classList.remove("live-results");
   const url=URL.createObjectURL(file);
   try {
     const photo=new Image();
@@ -410,11 +417,18 @@ function renderResults() {
     wrapper.append(label,select,result);fragment.append(wrapper);
   }
   $("reviewRows").append(fragment);
+  // Keep the grade projected onto a live sheet in sync with manual corrections.
+  if (liveCamera?.active() && liveCamera.frozen) liveCamera.showGrade(graded,state.confirmed);
 }
 
 function resetScan() {
+  if (liveCamera) liveCamera.stop();
   state.image=null;state.detections=null;state.overrides={};state.confirmed=false;state.turns=0;
-  $("scanIntro").hidden=false;$("scanWorkspace").hidden=true;$("results").hidden=true;
+  $("scanIntro").hidden=false;
+  $("scanWorkspace").hidden=true;
+  $("scanWorkspace").classList.remove("live-results");
+  $("photoWorkspacePreview").hidden=false;
+  $("results").hidden=true;
 }
 
 function copySummary() {
@@ -500,6 +514,26 @@ $("testTitle").value=state.title;
 $("questionCount").value=String(state.total);
 $("choiceCount").value=String(state.choices);
 renderKey();renderSheet();updateCountHint();bindEvents();
+liveCamera=initLiveCameraScanner({
+  isKeyReady:keyComplete,
+  getSettings:()=>({total:state.total,choices:state.choices,key:state.key}),
+  onStable:(answers)=>{
+    state.image=null;
+    state.detections=answers;
+    state.overrides={};
+    state.confirmed=false;
+    $("photoWorkspacePreview").hidden=true;
+    $("scanWorkspace").classList.add("live-results");
+    $("scanWorkspace").hidden=false;
+    $("results").hidden=false;
+    renderResults();
+  },
+  onNext:()=>{
+    state.detections=null;state.overrides={};state.confirmed=false;
+    $("scanWorkspace").hidden=true;
+    $("results").hidden=true;
+  }
+});
 initAssessmentAcknowledgement();
 if(keyImportedOnLoad)toast("Answer key imported to this device.");
 window.addEventListener("hashchange",()=>{
