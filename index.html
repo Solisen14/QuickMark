@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css?v=0.5">
+  <link rel="stylesheet" href="./styles.css?v=0.6">
   <title>QuickMark · The Curiosity Lab</title>
 </head>
 <body>
@@ -110,22 +110,43 @@
       </section>
 
       <section id="panel-scan" role="tabpanel" aria-labelledby="tab-scan" class="panel" hidden>
-        <div class="panel-heading"><div><p class="section-kicker">STEP THREE</p><h2>Scan & score</h2><p>Photograph a completed answer sheet. We'll read the marks and compare them with your key.</p></div><span id="scanKeyStatus" class="status-pill">Key not complete</span></div>
+        <div class="panel-heading"><div><p class="section-kicker">STEP THREE</p><h2>Scan & score</h2><p>Point your camera at an answer sheet for a live result, or scan a photo.</p></div><span id="scanKeyStatus" class="status-pill">Key not complete</span></div>
         <div class="scan-intro" id="scanIntro">
           <div class="scan-illustration" aria-hidden="true"><span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span><span class="scan-paper">✓</span></div>
           <h3>Ready when you are.</h3>
           <p>Place the entire page on a contrasting surface with good light. Hold your phone over it with the <strong>QuickMark</strong> heading at the top.</p>
           <div class="scan-buttons">
-            <label class="button primary camera-label" for="cameraInput">Take photo <span aria-hidden="true">↗</span></label>
+            <button id="startLiveScan" class="button primary" type="button">◉ Start live scan</button>
+            <label class="button secondary camera-label" for="cameraInput">Take photo</label>
             <label class="button secondary camera-label" for="uploadInput">Choose photo</label>
           </div>
+          <p id="cameraUnavailable" class="camera-unavailable" role="status" hidden></p>
           <input class="visually-hidden" id="cameraInput" type="file" accept="image/*" capture="environment">
           <input class="visually-hidden" id="uploadInput" type="file" accept="image/*">
-          <p class="small-note">Photos are processed in memory on this device. They are not uploaded or saved by QuickMark.</p>
+          <p class="small-note">Live video and photos are processed only on your device. Nothing is uploaded or automatically saved by QuickMark.</p>
+        </div>
+
+        <div id="liveWorkspace" class="live-workspace" hidden>
+          <div id="liveCameraStage" class="live-camera-stage">
+            <video id="liveVideo" autoplay playsinline muted aria-label="Live rear camera view of the answer sheet"></video>
+            <canvas id="liveOverlay" aria-hidden="true"></canvas>
+            <div id="liveScoreBadge" class="live-score-badge" hidden>
+              <span id="liveScoreLabel">RESULT READY · VERIFY</span>
+              <strong id="liveScoreValue">0/0 · 0%</strong>
+            </div>
+            <p id="liveCameraCaption" class="live-camera-caption" aria-hidden="true">Keep all four corners visible</p>
+          </div>
+          <p id="liveStatus" class="live-status" role="status" aria-live="polite">Starting camera…</p>
+          <div class="live-controls">
+            <button id="liveNextSheet" class="button primary" type="button" hidden>Scan next sheet →</button>
+            <button id="liveReview" class="button secondary" type="button" hidden>Review answers ↓</button>
+            <button id="stopLiveScan" class="button secondary" type="button">Stop camera</button>
+          </div>
+          <p class="small-note">The grade appears after three consistent readings. Verify each result before recording it. Camera access stops when you leave the scanner.</p>
         </div>
 
         <div id="scanWorkspace" class="scan-workspace" hidden>
-          <div class="workspace-preview">
+          <div id="photoWorkspacePreview" class="workspace-preview">
             <div class="preview-heading"><strong>Captured sheet</strong><button type="button" id="rotateImage" class="text-button">↻ Rotate photo</button></div>
             <canvas id="photoPreview" aria-label="Captured sheet with detected alignment markers"></canvas>
             <p id="scanFeedback" class="scan-feedback" role="status"></p>
@@ -158,7 +179,7 @@
     <footer class="site-footer">
       <span>QuickMark · A Curiosity Lab experiment</span>
       <button id="aboutAssessment" class="footer-link" type="button">About Assessment</button>
-      <span>Version 0.5 · Verify grades before recording them.</span>
+      <span>Version 0.6 · Verify grades before recording them.</span>
     </footer>
   </div>
   <dialog id="assessmentDialog" class="assessment-dialog" aria-labelledby="assessmentTitle" aria-describedby="assessmentDescription">
@@ -205,6 +226,6 @@
   </dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <div id="printRoot" aria-hidden="true"></div>
-  <script type="module" src="./app.js?v=0.5"></script>
+  <script type="module" src="./app.js?v=0.6"></script>
 </body>
 </html>
