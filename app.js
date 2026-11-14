@@ -1,4 +1,5 @@
 import {SHEET, ALPHABET, questionLayout, homography, grayscale, findMarkers, readAnswers, gradeAnswers, validQuestionCount, sheetFormatCode, readSheetFormatCode, questionCountGuidance} from "./omr.js?v=0.3";
+import {initAssessmentAcknowledgement} from "./assessment.js?v=0.5";
 
 const $ = id => document.getElementById(id);
 const STORAGE_KEY = "quickmark-answer-key-v1";
@@ -499,6 +500,7 @@ $("testTitle").value=state.title;
 $("questionCount").value=String(state.total);
 $("choiceCount").value=String(state.choices);
 renderKey();renderSheet();updateCountHint();bindEvents();
+initAssessmentAcknowledgement();
 if(keyImportedOnLoad)toast("Answer key imported to this device.");
 window.addEventListener("hashchange",()=>{
   if(!importKeyFromFragment())return;
