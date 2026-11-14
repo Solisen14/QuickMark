@@ -2,7 +2,17 @@
 
 **Scan. Score. Done.** A mobile-first, privacy-conscious multiple-choice grader, built as part of [The Curiosity Lab](https://solisen14.github.io/the-curiosity-lab/).
 
-**Status:** v0.2 experimental prototype. Its scoring logic passes synthetic-image tests, but real printed sheets and iPhone camera conditions have **not yet been validated**. Always inspect and confirm grades before recording them.
+**Status:** v0.5 experimental prototype. Its scoring logic passes synthetic-image tests, but real printed sheets and iPhone camera conditions have **not yet been validated**. Always inspect and confirm grades before recording them.
+
+## Balanced assessment acknowledgement
+
+First-time visitors see a welcome message emphasizing that multiple-choice questions can be useful, but that varied evidence of learning matters across all subject areas. Users must check **“I acknowledge the importance of using a balanced approach to assessment.”** before continuing.
+
+- The message is **educational guidance**, not a policy declaration or restriction on the number of multiple-choice questions.
+- The acknowledgement is saved **only on that device** in browser localStorage, using a separate key from the answer key.
+- Teachers can reopen the information any time using the **About Assessment** link in the footer.
+- A first-time visitor cannot dismiss the dialog using Escape without acknowledging. On subsequent visits, the information dialog is dismissible.
+- When local storage is unavailable, teachers can still acknowledge and use QuickMark for their current visit, but the message may reappear next time.
 
 ## What it does
 
@@ -40,6 +50,7 @@ You can add the site to your iPhone Home Screen from Safari's Share menu. It can
 - index.html and styles.css: responsive three-step teacher interface and print stylesheet
 - app.js: answer-key editor, SVG sheet builder, camera/photo handling, review workflow
 - omr.js: marker detection, projective geometry, bubble contrast measurement, format identifiers, counting guidance, scoring
+- assessment.js: accessible welcome dialog and device-local acknowledgement persistence
 - sw.js: offline cache for application assets only
 - tests/omr.test.mjs: synthetic image and scoring regression tests
 - .github/workflows/test.yml: automated Node tests and JavaScript syntax checks
