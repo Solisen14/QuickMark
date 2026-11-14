@@ -1,5 +1,5 @@
-const CACHE = "quickmark-v0.5";
-const ASSETS = ["./","./index.html","./styles.css?v=0.5","./app.js?v=0.5","./omr.js?v=0.3","./assessment.js?v=0.5","./icon.svg","./apple-touch-icon.png","./manifest.webmanifest"];
+const CACHE = "quickmark-v0.6";
+const ASSETS = ["./","./index.html","./styles.css?v=0.6","./app.js?v=0.6","./omr.js?v=0.3","./assessment.js?v=0.5","./live-camera.js?v=0.6","./live-scan.js?v=0.6","./icon.svg","./apple-touch-icon.png","./manifest.webmanifest"];
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
