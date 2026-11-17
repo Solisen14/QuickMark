@@ -188,7 +188,7 @@ function buildSheet() {
   }
   svgElement(svg,"line",{x1:103,y1:930,x2:713,y2:930,stroke:"#d8dfdc","stroke-width":1});
   svgElement(svg,"text",{x:103,y:957,"font-size":12,fill:"#506159","font-family":"Arial, sans-serif"},"Fill bubbles darkly using a pencil or pen. Erase cleanly if changing an answer.");
-  svgElement(svg,"text",{x:103,y:977,"font-size":11,fill:"#738178","font-family":"Arial, sans-serif"},"QuickMark · The Curiosity Lab · No student data is printed in the sheet code.");
+  svgElement(svg,"text",{x:103,y:977,"font-size":11,fill:"#738178","font-family":"Arial, sans-serif"},"QuickMark · HDSB · No student data is printed in the sheet code.");
   return svg;
 }
 

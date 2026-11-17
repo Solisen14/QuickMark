@@ -1,8 +1,10 @@
 # QuickMark
 
-**Scan. Score. Done.** A mobile-first, privacy-conscious multiple-choice grader, built as part of [The Curiosity Lab](https://solisen14.github.io/the-curiosity-lab/).
+A mobile-first, privacy-conscious multiple-choice grader for Halton District School Board teachers.
 
-**Status:** v0.6 experimental prototype. Its scoring logic passes synthetic-image tests, but real printed sheets and iPhone camera conditions have **not yet been validated**. Always inspect and confirm grades before recording them.
+The HDSB logo is sourced from the [Halton District School Board website](https://www.hdsb.ca/).
+
+**Status:** v0.7 experimental prototype. Its scoring logic passes synthetic-image tests, but real printed sheets and iPhone camera conditions have **not yet been validated**. Always inspect and confirm grades before recording them.
 
 ## Balanced assessment acknowledgement
 
